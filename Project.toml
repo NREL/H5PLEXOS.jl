@@ -1,0 +1,9 @@
+name = "H5PLEXOS"
+uuid = "30e9bc9d-95c1-474a-9a40-60ab4bafb5d2"
+authors = ["Gord Stephen <gord.stephen@nrel.gov>"]
+version = "0.1.0"
+
+[deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
+PLEXOSUtils = "05faf425-d728-49da-9df3-01114615952c"
