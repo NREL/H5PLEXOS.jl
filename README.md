@@ -5,8 +5,8 @@ into H5PLEXOS-formatted HDF5 files (using H5PLEXOS format version 0.6).
 
 ## Installation
 
-The package is currently only available inside NREL, and requires adding the
-`NRELInternal` Julia package registry. If you've never used Julia before,
+Installing this package requires adding the
+`NREL` Julia package registry. If you've never used Julia before,
 run `update` in the package management prompt to make sure the `General`
 registry is installed first:
 
@@ -14,10 +14,10 @@ registry is installed first:
 pkg> update
 ```
 
-Now you can add the internal NREL registry:
+Now you can add the NREL registry:
 
 ```julia
-pkg> registry add https://github.nrel.gov/JuliaLang/InternalRegistry.git
+pkg> registry add https://github.com/NREL/JuliaRegistry.git
 ```
 
 Once this is done the package can be installed normally.
