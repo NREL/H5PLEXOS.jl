@@ -38,14 +38,14 @@ end
 
 # Write from DataFrame
 function string_table!(
-    f::HDF5Group, tablename::String, strlen::Int,
+    f::HDF5.Group, tablename::String, strlen::Int,
     colnames::NTuple{N,String}, data::Vector{NTuple{N,String}}) where N
 
     nrows = length(data)
 
     stringtype_id = HDF5.h5t_copy(HDF5.hdf5_type_id(String))
     HDF5.h5t_set_size(stringtype_id, strlen)
-    stringtype = HDF5.HDF5Datatype(stringtype_id)
+    stringtype = HDF5.Datatype(stringtype_id)
 
     dt_id = HDF5.h5t_create(HDF5.H5T_COMPOUND, N * strlen)
     for (i, colname) in enumerate(colnames)
@@ -56,7 +56,7 @@ function string_table!(
     charlists = convertstring.(strings, strlen)
     rawdata = UInt8.(vcat(charlists...))
 
-    dset = HDF5.d_create(f, tablename, HDF5.HDF5Datatype(dt_id),
+    dset = create_dataset(f, tablename, HDF5.Datatype(dt_id),
                     HDF5.dataspace((nrows,)))
     HDF5.h5d_write(
         dset, dt_id, HDF5.H5S_ALL, HDF5.H5S_ALL, HDF5.H5P_DEFAULT, rawdata)

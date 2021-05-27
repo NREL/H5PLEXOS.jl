@@ -5,7 +5,7 @@ function process(
 
     systemdata, resultvalues = open_plexoszip(zipfilein)
 
-    h5open(h5fileout, "w") do h5file::HDF5File
+    h5open(h5fileout, "w") do h5file::HDF5.File
         addconfigs!(h5file, systemdata)
         membership_idxs = addcollections!(h5file, systemdata, strlen, compressionlevel)
         addtimes!(h5file, systemdata, timestampformat, compressionlevel)
@@ -14,9 +14,9 @@ function process(
 
 end
 
-function addconfigs!(f::HDF5File, data::PLEXOSSolutionDataset)
+function addconfigs!(f::HDF5.File, data::PLEXOSSolutionDataset)
 
-    rootattrs = attrs(f)
+    rootattrs = attributes(f)
     rootattrs["h5plexos"] = H5PLEXOS_VERSION
 
     for config in data.configs
@@ -26,7 +26,7 @@ function addconfigs!(f::HDF5File, data::PLEXOSSolutionDataset)
 end
 
 function addcollections!(
-    f::HDF5File, data::PLEXOSSolutionDataset,
+    f::HDF5.File, data::PLEXOSSolutionDataset,
     strlen::Int, compressionlevel::Int)
 
     counts = Dict{PLEXOSCollection,Int}()
@@ -64,9 +64,9 @@ function addcollections!(
 
     end
 
-    h5meta = g_create(f, "metadata")
-    h5objects = g_create(h5meta, "objects")
-    h5relations = g_create(h5meta, "relations")
+    h5meta = create_group(f, "metadata")
+    h5objects = create_group(h5meta, "objects")
+    h5relations = create_group(h5meta, "relations")
 
     for collection in keys(collections)
 
@@ -86,7 +86,7 @@ function addcollections!(
 end
 
 function addvalues!(
-    f::HDF5File, data::PLEXOSSolutionDataset,
+    f::HDF5.File, data::PLEXOSSolutionDataset,
     membership_idxs::Dict{PLEXOSMembership,Int},
     resultvalues::Dict{Int,Vector{UInt8}},
     compressionlevel::Int)
@@ -103,7 +103,7 @@ function addvalues!(
         end
     end
 
-    h5data = g_create(f, "data")
+    h5data = create_group(f, "data")
 
     for ki in data.keyindices
 
@@ -121,7 +121,7 @@ function addvalues!(
 
 end
 
-function dataset!(h5data::HDF5Group, ki::PLEXOSKeyIndex,
+function dataset!(h5data::HDF5.Group, ki::PLEXOSKeyIndex,
                   propertybands::Dict{PLEXOSProperty,Int},
                   compressionlevel::Int)
 
@@ -134,11 +134,11 @@ function dataset!(h5data::HDF5Group, ki::PLEXOSKeyIndex,
     summarydata = property.issummary && (ki.periodtype != 0)
     prop = summarydata ? property.summaryname : property.name
 
-    h5phase = exists(h5data, phase) ? h5data[phase] : g_create(h5data, phase)
-    h5period = exists(h5phase, period) ? h5phase[period] : g_create(h5phase, period)
-    h5coll = exists(h5period, coll) ? h5period[coll] : g_create(h5period, coll)
+    h5phase = haskey(h5data, phase) ? h5data[phase] : create_group(h5data, phase)
+    h5period = haskey(h5phase, period) ? h5phase[period] : create_group(h5phase, period)
+    h5coll = haskey(h5period, coll) ? h5period[coll] : create_group(h5period, coll)
 
-    if exists(h5coll, prop)
+    if haskey(h5coll, prop)
 
         dset = h5coll[prop]
 
@@ -151,12 +151,12 @@ function dataset!(h5data::HDF5Group, ki::PLEXOSKeyIndex,
         members = HDF5.root(h5data)["metadata/" * collectiontype * "/" * coll]
         nmembers = length(members)
 
-        dset = d_create(h5coll, prop, HDF5.datatype(Float64),
+        dset = create_dataset(h5coll, prop, HDF5.datatype(Float64),
                         HDF5.dataspace(nbands, ntimes, nmembers),
-                        "chunk", (nbands, ntimes, 1),
-                        "compress", compressionlevel)
+                        chunk=(nbands, ntimes, 1),
+                        compress=compressionlevel)
 
-        dset_attrs = attrs(dset)
+        dset_attrs = attributes(dset)
         dset_attrs["period_offset"] = ki.periodoffset
         dset_attrs["units"] =
             summarydata ? property.summaryunit.value : property.unit.value
@@ -167,7 +167,7 @@ function dataset!(h5data::HDF5Group, ki::PLEXOSKeyIndex,
 
 end
 
-function addtimes!(f::HDF5File, data::PLEXOSSolutionDataset,
+function addtimes!(f::HDF5.File, data::PLEXOSSolutionDataset,
                    localformat::DateFormat, compressionlevel::Int)
 
     # PLEXOS data format notes:
@@ -179,7 +179,7 @@ function addtimes!(f::HDF5File, data::PLEXOSSolutionDataset,
     # Direct mapping to period labels
 
     stdformat = DateFormat("yyyy-mm-ddTHH:MM:SS")
-    h5times = g_create(f["metadata"], "times")
+    h5times = create_group(f["metadata"], "times")
 
     periodtypes = [(t.fieldname, t.timestampfield)
                    for t in plexostables
