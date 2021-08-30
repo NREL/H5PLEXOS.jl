@@ -181,6 +181,10 @@ function addtimes!(f::HDF5.File, data::PLEXOSSolutionDataset,
     stdformat = DateFormat("yyyy-mm-ddTHH:MM:SS")
     h5times = create_group(f["metadata"], "times")
 
+    stringtype_id = HDF5.h5t_copy(HDF5.hdf5_type_id(String))
+    HDF5.h5t_set_size(stringtype_id, 19)
+    datestringtype = HDF5.Datatype(stringtype_id)
+
     periodtypes = [(t.fieldname, t.timestampfield)
                    for t in plexostables
                    if t.timestampfield !== nothing]
@@ -189,12 +193,24 @@ function addtimes!(f::HDF5.File, data::PLEXOSSolutionDataset,
 
         uselocalformat = dfield == :intervals || dfield == :hours
         periodset = getfield(data, dfield)
-        length(periodset) == 0 && continue
+        nperiods = length(periodset)
+        nperiods == 0 && continue
 
         period_dts = DateTime.(getfield.(periodset, pfield),
                                uselocalformat ? localformat : stdformat)
         issorted(period_dts) || error("$(string(dfield)) not sorted")
-        h5times[periodname(dfield)] = format.(period_dts, stdformat)
+
+        dset = create_dataset(h5times, periodname(dfield), datestringtype,
+                              HDF5.dataspace((nperiods,)))
+
+        timestamps = ascii.(format.(period_dts, stdformat))
+        any(x -> length(x) != 19, timestamps) && error("Unexpected timestamp format")
+
+        charlists = Vector{Char}.(timestamps)
+        rawdata = UInt8.(vcat(charlists...))
+        HDF5.h5d_write(
+            dset, datestringtype, HDF5.H5S_ALL, HDF5.H5S_ALL,
+            HDF5.H5P_DEFAULT, rawdata)
 
     end
 
