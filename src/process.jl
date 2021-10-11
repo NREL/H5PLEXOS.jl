@@ -9,6 +9,7 @@ function process(
         addconfigs!(h5file, systemdata)
         membership_idxs = addcollections!(h5file, systemdata, strlen, compressionlevel)
         addtimes!(h5file, systemdata, timestampformat, compressionlevel)
+        addblocks!(h5file, systemdata, timestampformat, compressionlevel)
         addvalues!(h5file, systemdata, membership_idxs, resultvalues, compressionlevel)
     end
 
@@ -178,16 +179,11 @@ function addtimes!(f::HDF5.File, data::PLEXOSSolutionDataset,
     # Period type 1-7 - period-type-specific data
     # Direct mapping to period labels
 
-    stdformat = DateFormat("yyyy-mm-ddTHH:MM:SS")
     h5times = create_group(f["metadata"], "times")
 
     stringtype_id = HDF5.h5t_copy(HDF5.hdf5_type_id(String))
     HDF5.h5t_set_size(stringtype_id, 19)
     datestringtype = HDF5.Datatype(stringtype_id)
-
-    periodtypes = [(t.fieldname, t.timestampfield)
-                   for t in plexostables
-                   if t.timestampfield !== nothing]
 
     for (dfield, pfield) in periodtypes
 
@@ -211,6 +207,31 @@ function addtimes!(f::HDF5.File, data::PLEXOSSolutionDataset,
         HDF5.h5d_write(
             dset, datestringtype, HDF5.H5S_ALL, HDF5.H5S_ALL,
             HDF5.H5P_DEFAULT, rawdata)
+
+    end
+
+end
+
+
+function addblocks!(f::HDF5.File, data::PLEXOSSolutionDataset,
+                    localformat::DateFormat, compressionlevel::Int)
+
+    h5blocks = create_group(f["metadata"], "blocks")
+    colnames = ("period", "block")
+
+    for phase in phasetypes
+
+        blockmaps = getfield(data, phase)
+        n_blockmaps = length(blockmaps)
+        n_blockmaps == 0 && continue
+
+        period_dts = DateTime.(
+            getfield.(getfield.(blockmaps, :interval), :datetime), localformat)
+        periods = format.(period_dts, stdformat)
+        blocks = UInt32.(getproperty.(blockmaps, :period))
+
+        string_uint32_table!(h5blocks, phasename(phase), 19,
+                             colnames, collect(zip(periods, blocks)))
 
     end
 

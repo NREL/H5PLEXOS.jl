@@ -2,7 +2,7 @@ module H5PLEXOS
 
 import Dates: DateTime, DateFormat, format
 import HDF5
-import HDF5: attributes, create_group, create_dataset, h5open
+import HDF5: attributes, create_group, create_dataset, datatype, h5open
 import PLEXOSUtils: PLEXOSCollection, PLEXOSMembership, PLEXOSProperty,
                     PLEXOSKeyIndex, PLEXOSSolutionDataset, plexostables,
                     open_plexoszip
