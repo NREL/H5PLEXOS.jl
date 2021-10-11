@@ -217,7 +217,7 @@ function addblocks!(f::HDF5.File, data::PLEXOSSolutionDataset,
                     localformat::DateFormat, compressionlevel::Int)
 
     h5blocks = create_group(f["metadata"], "blocks")
-    colnames = ("period", "block")
+    colnames = ("interval", "block")
 
     for phase in phasetypes
 

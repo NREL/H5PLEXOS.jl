@@ -9,7 +9,7 @@ import PLEXOSUtils: PLEXOSCollection, PLEXOSMembership, PLEXOSProperty,
 
 export process
 
-const H5PLEXOS_VERSION = "v0.6.1"
+const H5PLEXOS_VERSION = "v0.6.2"
 
 include("process.jl")
 include("utils.jl")
