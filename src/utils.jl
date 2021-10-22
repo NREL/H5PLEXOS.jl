@@ -106,3 +106,9 @@ convertstring(s::AbstractString, strlen::Int) =
     Vector{Char}.(rpad(ascii(s), strlen, '\0')[1:strlen])
 
 sanitize(s::AbstractString) = replace(lowercase(ascii(s)), " " => "")
+
+function findsample(systemdata::PLEXOSSolutionDataset, samplename::String)
+    i = findfirst(s -> s.name == samplename, systemdata.samples)
+    isnothing(i) && error("Sample '$samplename' does not exist in the solution.")
+    return systemdata.samples[i]
+end

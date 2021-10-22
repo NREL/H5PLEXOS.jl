@@ -1,16 +1,20 @@
 function process(
     zipfilein::String, h5fileout::String;
     compressionlevel=1, strlen=128,
-    timestampformat::DateFormat=DateFormat("d/m/y H:M:S"))
+    timestampformat::DateFormat=DateFormat("d/m/y H:M:S"),
+    sample::String="Mean")
 
     systemdata, resultvalues = open_plexoszip(zipfilein)
+
+    targetsample = findsample(systemdata, sample)
 
     h5open(h5fileout, "w") do h5file::HDF5.File
         addconfigs!(h5file, systemdata)
         membership_idxs = addcollections!(h5file, systemdata, strlen, compressionlevel)
         addtimes!(h5file, systemdata, timestampformat, compressionlevel)
         addblocks!(h5file, systemdata, timestampformat, compressionlevel)
-        addvalues!(h5file, systemdata, membership_idxs, resultvalues, compressionlevel)
+        addvalues!(h5file, systemdata, membership_idxs, resultvalues,
+                   compressionlevel, targetsample)
     end
 
 end
@@ -90,7 +94,7 @@ function addvalues!(
     f::HDF5.File, data::PLEXOSSolutionDataset,
     membership_idxs::Dict{PLEXOSMembership,Int},
     resultvalues::Dict{Int,Vector{UInt8}},
-    compressionlevel::Int)
+    compressionlevel::Int, target_sample::PLEXOSSample)
 
     propertybands = Dict{PLEXOSProperty,Int}()
 
@@ -107,6 +111,8 @@ function addvalues!(
     h5data = create_group(f, "data")
 
     for ki in data.keyindices
+
+        ki.key.sample === target_sample || continue
 
         dset = dataset!(h5data, ki, propertybands, compressionlevel)
         member_idx = membership_idxs[ki.key.membership]
