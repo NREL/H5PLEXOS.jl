@@ -55,6 +55,9 @@ fixed-length strings. Use this parameter to adjust the length of those strings
 `dateformat`: A Julia `DateFormat` object explaining how to parse localized
 timestamps reported by PLEXOS. Default is `DateFormat("d/m/y H:M:S")`.
 
+`sample`: A `String` providing the name of the stochastic sample to be
+processed. Defaults to `"Mean"`.
+
 ## Querying solutions
 
 The package does does not currently provide tools for querying the generated
