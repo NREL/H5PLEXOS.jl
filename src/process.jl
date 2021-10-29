@@ -12,7 +12,8 @@ function process(
         addconfigs!(h5file, systemdata)
         membership_idxs = addcollections!(h5file, systemdata, strlen, compressionlevel)
         addtimes!(h5file, systemdata, timestampformat, compressionlevel)
-        addblocks!(h5file, systemdata, timestampformat, compressionlevel)
+        length(systemdata.intervals) > 0 &&
+            addblocks!(h5file, systemdata, timestampformat, compressionlevel)
         addvalues!(h5file, systemdata, membership_idxs, resultvalues,
                    compressionlevel, targetsample)
     end
@@ -217,7 +218,6 @@ function addtimes!(f::HDF5.File, data::PLEXOSSolutionDataset,
     end
 
 end
-
 
 function addblocks!(f::HDF5.File, data::PLEXOSSolutionDataset,
                     localformat::DateFormat, compressionlevel::Int)
