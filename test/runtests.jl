@@ -1,6 +1,7 @@
 using H5PLEXOS
 
 zipfiles = ["Model Base_8200 Solution.zip",
+            "Model Base_8200 NoInterval Solution.zip",
             "Model DAY_AHEAD_NO_TX Solution.zip",
             "Model DAY_AHEAD_NO_TX Stochastic Solution.zip",
             "Model DAY_AHEAD_ALL_TX Solution.zip",
