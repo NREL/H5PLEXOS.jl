@@ -2,9 +2,13 @@ function process(
     zipfilein::String, h5fileout::String;
     compressionlevel=1, strlen=128,
     timestampformat::DateFormat=DateFormat("d/m/y H:M:S"),
-    sample::String="Mean")
+    sample::String="Mean", xmlfile::String="")
 
-    systemdata, resultvalues = open_plexoszip(zipfilein)
+    systemdata, resultvalues = if xmlfile == ""
+         open_plexoszip(zipfilein)
+    else
+         open_plexoszip(zipfilein, xmlfile)
+    end
 
     targetsample = findsample(systemdata, sample)
 
