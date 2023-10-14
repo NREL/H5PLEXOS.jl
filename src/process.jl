@@ -116,8 +116,12 @@ function addvalues!(
     h5data = create_group(f, "data")
 
     for ki in data.keyindices
-
-        ki.key.sample === target_sample || continue
+        if ki.key.phase == 1 && ki.periodtype == 0
+            continue
+        end
+        # print(ki.key.membership.childclass.name," ")
+        # print(ki.key.membership.childobject.name," ",ki.length)
+        # println("    ")        ki.key.sample === target_sample || continue
 
         dset = dataset!(h5data, ki, propertybands, compressionlevel)
         member_idx = membership_idxs[ki.key.membership]
