@@ -43,6 +43,12 @@ to call the function directly from the shell, rather than writing a script:
 julia -e 'using H5PLEXOS; process("plexossolution.zip", "plexossolution.h5")'
 ```
 
+To include bash variables in the above command, the correct synatx involves escape characters like so:
+
+```sh
+julia --project -e "using H5PLEXOS; process(\"$dir/Model $model Solution.zip\",\"$dir/Model $model Solution.h5\")"
+```
+
 The function accepts a number of keyword arguments to customize the process:
 
 `compressionlevel`: Set the level of compression to be used (0-9).
