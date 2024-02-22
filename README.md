@@ -26,6 +26,22 @@ Once this is done the package can be installed normally.
 pkg> add H5PLEXOS
 ```
 
+While running this command, you may run into issues with the `InfoZIP` package.
+To solve, open the following file:
+"~/.julia/packages/InfoZIP/{unique-hash-code}/Project.toml"
+and delete the `[compat]` section.
+
+Then, run
+```julia
+pkg> add InfoZIP
+pkg> build HDF5
+```
+
+Now you should be able to use `h5plexos`. Test with
+```julia
+julia> using H5PLEXOS
+```
+
 ## Processing solutions
 
 The module exports the  function `process` which handles conversion. For
